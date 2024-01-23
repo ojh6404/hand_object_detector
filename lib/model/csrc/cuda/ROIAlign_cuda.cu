@@ -7,6 +7,25 @@
 // #include <THC/THCAtomics.cuh>
 // #include <THC/THCDeviceUtils.cuh>
 
+// Define custom atomicAdd when cuda capability is less then 6.00
+__device__ double myatomicAdd2(double* address, double val)
+{
+    unsigned long long int* address_as_ull =
+                              (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                        __double_as_longlong(val +
+                               __longlong_as_double(assumed)));
+
+    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+    } while (assumed != old);
+
+    return __longlong_as_double(old);
+}
+
 // TODO make it in a common file
 #define CUDA_1D_KERNEL_LOOP(i, n)                            \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; \
@@ -248,10 +267,10 @@ __global__ void RoIAlignBackwardFeature(const int nthreads, const T* top_diff,
 
         if (x_low >= 0 && x_high >= 0 && y_low >= 0 && y_high >= 0)
         {
-          atomicAdd(offset_bottom_diff + y_low * width + x_low, static_cast<T>(g1));
-          atomicAdd(offset_bottom_diff + y_low * width + x_high, static_cast<T>(g2));
-          atomicAdd(offset_bottom_diff + y_high * width + x_low, static_cast<T>(g3));
-          atomicAdd(offset_bottom_diff + y_high * width + x_high, static_cast<T>(g4));
+          myatomicAdd2(reinterpret_cast<double*>(offset_bottom_diff + y_low * width + x_low), static_cast<T>(g1));
+          myatomicAdd2(reinterpret_cast<double*>(offset_bottom_diff + y_low * width + x_high), static_cast<T>(g2));
+          myatomicAdd2(reinterpret_cast<double*>(offset_bottom_diff + y_high * width + x_low), static_cast<T>(g3));
+          myatomicAdd2(reinterpret_cast<double*>(offset_bottom_diff + y_high * width + x_high), static_cast<T>(g4));
         } // if
       } // ix
     } // iy

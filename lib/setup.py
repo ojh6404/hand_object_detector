@@ -28,7 +28,11 @@ def get_extensions():
     extra_compile_args = {"cxx": []}
     define_macros = []
 
-    if torch.cuda.is_available() and CUDA_HOME is not None:
+    am_i_docker = os.environ.get('AM_I_DOCKER', '').casefold() in ['true', '1', 't']
+    use_cuda = os.environ.get('BUILD_WITH_CUDA', '').casefold() in ['true', '1', 't']
+
+    if (torch.cuda.is_available() and CUDA_HOME is not None) or \
+            (am_i_docker and use_cuda):
         extension = CUDAExtension
         sources += source_cuda
         define_macros += [("WITH_CUDA", None)]

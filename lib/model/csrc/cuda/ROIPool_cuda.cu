@@ -7,6 +7,25 @@
 // #include <THC/THCAtomics.cuh>
 // #include <THC/THCDeviceUtils.cuh>
 
+// Define custom atomicAdd when cuda capability is less then 6.00
+__device__ double myatomicAdd1(double* address, double val)
+{
+    unsigned long long int* address_as_ull =
+                              (unsigned long long int*)address;
+    unsigned long long int old = *address_as_ull, assumed;
+
+    do {
+        assumed = old;
+        old = atomicCAS(address_as_ull, assumed,
+                        __double_as_longlong(val +
+                               __longlong_as_double(assumed)));
+
+    // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
+    } while (assumed != old);
+
+    return __longlong_as_double(old);
+}
+
 // template <typename T>
 // __host__ __device__ __forceinline__ T THCCeilDiv(T a, T b) {
 //   return (a + b - 1) / b;
@@ -103,8 +122,8 @@ __global__ void RoIPoolFBackward(const int nthreads, const T* top_diff,
 
     int argmax = offset_argmax_data[ph * pooled_width + pw];
     if (argmax != -1) {
-      atomicAdd(
-          offset_bottom_diff + argmax,
+      myatomicAdd1(
+          reinterpret_cast<double*>(offset_bottom_diff + argmax),
           static_cast<T>(offset_top_diff[ph * pooled_width + pw]));
 
     }
