@@ -16,7 +16,7 @@ requirements = ["torch", "torchvision"]
 
 def get_extensions():
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    extensions_dir = os.path.join(this_dir, "model", "csrc")
+    extensions_dir = os.path.join(this_dir, "hand_object_detector", "csrc")
 
     main_file = glob.glob(os.path.join(extensions_dir, "*.cpp"))
     source_cpu = glob.glob(os.path.join(extensions_dir, "cpu", "*.cpp"))
@@ -49,7 +49,7 @@ def get_extensions():
 
     ext_modules = [
         extension(
-            "model._C",
+            "hand_object_detector._C",
             sources,
             include_dirs=include_dirs,
             define_macros=define_macros,

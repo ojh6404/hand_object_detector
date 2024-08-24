@@ -15,12 +15,12 @@ import xml.etree.ElementTree as ET
 import numpy as np
 import scipy.sparse
 import scipy.io as sio
-# import model.utils.cython_bbox
+# import hand_object_detector.utils.cython_bbox
 import pickle
 import subprocess
 import uuid
 from .voc_eval import voc_eval
-from model.utils.config import cfg
+from hand_object_detector.utils.config import cfg
 import pdb
 
 

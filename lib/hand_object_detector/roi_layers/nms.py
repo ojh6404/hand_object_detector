@@ -1,6 +1,6 @@
 # Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
 # from ._utils import _C
-from model import _C
+from hand_object_detector import _C
 
 nms = _C.nms
 # nms.__doc__ = """

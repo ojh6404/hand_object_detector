@@ -27,12 +27,12 @@ from torch.utils.data.sampler import Sampler
 
 from roi_data_layer.roidb import combined_roidb
 from roi_data_layer.roibatchLoader import roibatchLoader
-from model.utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
-from model.utils.net_utils import weights_normal_init, save_net, load_net, \
+from hand_object_detector.utils.config import cfg, cfg_from_file, cfg_from_list, get_output_dir
+from hand_object_detector.utils.net_utils import weights_normal_init, save_net, load_net, \
       adjust_learning_rate, save_checkpoint, clip_gradient
 
-from model.faster_rcnn.vgg16 import vgg16
-from model.faster_rcnn.resnet import resnet
+from hand_object_detector.faster_rcnn.vgg16 import vgg16
+from hand_object_detector.faster_rcnn.resnet import resnet
 
 def parse_args():
   """
